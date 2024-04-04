@@ -75,8 +75,8 @@ class FSChatBot(object):
 
         self.model = self.model.to(self.device)
         self.model = self.model.eval()
-        if torch.__version__ >= "2" and sys.platform != "win32":
-            self.model = torch.compile(self.model)
+        # if torch.__version__ >= "2" and sys.platform != "win32":
+        #     self.model = torch.compile(self.model)
 
         self.max_history_len = config.llm.chat.max_history_len
         self.max_len = config.llm.chat.max_len

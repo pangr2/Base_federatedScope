@@ -19,6 +19,7 @@ except ImportError as error:
 # TODO: Add PyGNodeDataTranslator and PyGLinkDataTranslator
 # TODO: move splitter to PyGNodeDataTranslator and PyGLinkDataTranslator
 TRANS_DATA_MAP = {
+    'QuantityDataTranslator': ['arc_challenge@llm', 'openbookqa@llm', 'arc_easy@llm'],
     'BaseDataTranslator': [
         '.*?@.*?', 'hiv', 'proteins', 'imdb-binary', 'bbbp', 'tox21', 'bace',
         'sider', 'clintox', 'esol', 'freesolv', 'lipo', 'cifar4cl', 'cifar4lp'

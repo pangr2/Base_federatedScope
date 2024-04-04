@@ -342,7 +342,306 @@ def load_llm_dataset(config=None, **kwargs):
                 i for i in list_data_dict if i['category'] != 'X86-64 Assembly'
             ]
         dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 'openbookqa':
+        fp = os.path.join(config.data.root, 'OpenBookQA_train.jsonl')
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/OpenBookQA-V1-Sep2018/Data'
+                     '/Main/OpenBookQA_train.jsonl', config.data.root)
+        list_data_dict = load_jsonl_question_dict(fp,
+                                                  question_dict='question',
+                                                  instruction='stem',
+                                                  input='choices',
+                                                  output='answerKey')
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 'arc_easy':
+        fp = os.path.join(config.data.root, 'ARC-Easy-Train.jsonl')
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/ARC-V1-Feb2018/ARC-V1-Feb2018'
+                     '-2/ARC-Easy/ARC-Easy-Train.jsonl', config.data.root)
+        list_data_dict = load_jsonl_question_dict(fp,
+                                                  question_dict='question',
+                                                  instruction='stem',
+                                                  input='choices',
+                                                  output='answerKey')
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 'arc_challenge':
+        fp = os.path.join(config.data.root, 'ARC-Challenge-Train.jsonl')
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/ARC-V1-Feb2018/ARC-V1-Feb2018'
+                     '-2/ARC-Challenge/ARC-Challenge-Train.jsonl', config.data.root)
+        list_data_dict = load_jsonl_question_dict(fp,
+                                                  question_dict='question',
+                                                  instruction='stem',
+                                                  input='choices',
+                                                  output='answerKey')
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 's_glue_boolq':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'SuperGlue/BoolQ'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'train.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/SuperGlue/BoolQ/train.jsonl',
+                     config_data_root_glue)
+        list_data_dict = load_jsonl(fp,
+                                    instruction='question',
+                                    input='passage',
+                                    output='label')
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 's_glue_cb':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'SuperGlue/CB'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'train.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/SuperGlue/CB/train.jsonl',
+                     config_data_root_glue)
+        list_data_dict = load_jsonl(fp,
+                                    instruction='premise',
+                                    input='hypothesis',
+                                    output='label')
+        dataset = LLMDataset(list_data_dict, tokenizer)
+
+    elif dataset_name.lower() == 's_glue_copa':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'SuperGlue/COPA'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'train.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/SuperGlue/COPA/train.jsonl',
+                     config_data_root_glue)
+        # the padding is according to the paper : https://people.ict.usc.edu/~gordon/publications/AAAI-SPRING11A.PDF
+        mapping = {
+            "cause": "What was the cause of this?",
+            "effect": "What happened as a result?",
+            'choice1': 'Alternative 0 :',
+            'choice2': 'Alternative 1 :'
+        }
+        list_data_dict = load_jsonl_with_mapping(fp,
+                                                 instruction='premise',
+                                                 input=['choice1', 'choice2'],
+                                                 output='label',
+                                                 category='question',
+                                                 mapping=mapping)
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 's_glue_multirc':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'SuperGlue/MultiRC'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'train.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/SuperGlue/MultiRC/train.jsonl',
+                     config_data_root_glue)
+        # list_data_dict = load_jsonl(fp,
+        #                             instruction='premise',
+        #                             input='hypothesis',
+        #                             output='label')
+        # dataset = LLMDataset(list_data_dict, tokenizer)
+        # todo： 多选题未实现
+        raise ValueError(f'Not support data type {dataset_name}.')
+    elif dataset_name.lower() == 's_glue_record':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'SuperGlue/ReCoRD'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'test.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/SuperGlue/ReCoRD/train.jsonl',
+                     config_data_root_glue)
+
+        list_data_dict = load_jsonl_question_record(fp,
+                                                    question_dict='passage',
+                                                    instruction='text',
+                                                    input='passage',
+                                                    output='label',
+                                                    category='source')
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 's_glue_rte':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'SuperGlue/RTE'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'train.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/SuperGlue/RTE/train.jsonl',
+                     config_data_root_glue)
+        mapping = {
+            'fix_instruction': 'Does the text premise evidence for the hypothesis?',
+            'premise': 'premise :',
+            'hypothesis': 'hypothesis :',
+            'entailment': "True",
+            'not_entailment': "False"
+        }
+        list_data_dict = load_jsonl_with_mapping(fp,
+                                                 input=['premise', 'hypothesis'],
+                                                 output='label',
+                                                 mapping=mapping)
+        dataset = LLMDataset(list_data_dict, tokenizer)
+    elif dataset_name.lower() == 's_glue_wic':
+        raise ValueError(f'Not support data type {dataset_name} yet.')
+    elif dataset_name.lower() == 's_glue_wsc':
+        raise ValueError(f'Not support data type {dataset_name} yet.')
+    elif dataset_name.lower() == 'piqa':
+        # SuperGLUE_{name} dataset for testing
+        folder_name = 'PIQA'
+        config_data_root_glue = os.path.join(config.data.root, folder_name)
+        fp = os.path.join(config_data_root_glue, 'train.jsonl')
+
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/PIQA/train.jsonl',
+                     config_data_root_glue)
+        download_url('https://raw.githubusercontent.com/pangr2/dataset_collection/main/PIQA/train-labels.lst',
+                     config_data_root_glue)
+        list_data_dict = load_jsonl(fp,
+                                    instruction='question',
+                                    input='passage',
+                                    output='label')
+        dataset = LLMDataset(list_data_dict, tokenizer)
     else:
         raise ValueError(f'Not support data type {dataset_name}.')
 
     return dataset, config
+
+
+def load_jsonl_question_dict(file_path,
+                             question_dict='question',
+                             instruction='instruction',
+                             input='input',
+                             output='output',
+                             category='category',
+                             is_gzip=False):
+    """
+    This function reads a JSONL file that contains one example per line,
+    each with an instruction, an input, an output, and a category. It
+    returns a list of dictionaries with the same keys, but with the option
+    to rename them. It also supports reading gzip-compressed files.
+
+    Args:
+        file_path: A string, the path to the JSONL file.
+        instruction: A string, the key for the instruction field. Defaults
+            to 'instruction'.
+        input: A string, the key for the input field. Defaults to 'input'.
+        output: A string, the key for the output field. Defaults to 'output'.
+        category: A string, the key for the category field. Defaults to
+            'category'.
+        is_gzip: A boolean, whether the file is gzip-compressed or not.
+            Defaults to False.
+
+    Returns:
+        A list of dictionaries, each with four keys: instruction, input,
+        output, and category. The values are taken from the JSONL file and
+        may be None if the corresponding key is not present in the line.
+
+    """
+    # Format of each line:
+    # {'instruction': ..., 'input': ..., 'output':...}
+    list_data_dict = []
+    open_func = open if not is_gzip else gzip.open
+    with open_func(file_path, 'r') as f:
+        for line in f:
+            item = json.loads(line)
+            new_item = dict(
+                instruction=item[question_dict][instruction] if instruction in item[question_dict] else None,
+                input=item[question_dict][input] if input in item[question_dict] else None,
+                output=item[output] if output in item else None,
+                category=item[category] if category in item else None)
+            item = new_item
+            list_data_dict.append(item)
+    return list_data_dict
+
+
+def load_jsonl_with_mapping(file_path,
+                            instruction='instruction',
+                            input=None,
+                            output='output',
+                            category='category',
+                            mapping=None,
+                            is_gzip=False):
+    """
+    This function reads a JSONL file that contains one example per line,
+    each with an instruction, an input, an output, and a category. It
+    returns a list of dictionaries with the same keys, but with the option
+    to rename them. It also supports reading gzip-compressed files.
+
+    Args:
+        file_path: A string, the path to the JSONL file.
+        instruction: A string, the key for the instruction field. Defaults
+            to 'instruction'.
+        input: A string, the key for the input field. Defaults to 'input'.
+        output: A string, the key for the output field. Defaults to 'output'.
+        category: A string, the key for the category field. Defaults to
+            'category'.
+        is_gzip: A boolean, whether the file is gzip-compressed or not.
+            Defaults to False.
+        mapping = the mapping of the question to the instruction, to padding the instruction
+    Returns:
+        A list of dictionaries, each with four keys: instruction, input,
+        output, and category. The values are taken from the JSONL file and
+        may be None if the corresponding key is not present in the line.
+
+    """
+    # Format of each line:
+    # {'instruction': ..., 'input': ..., 'output':...}
+    list_data_dict = []
+    open_func = open if not is_gzip else gzip.open
+    with open_func(file_path, 'r') as f:
+        for line in f:
+            item = json.loads(line)
+            # using different question for different category
+            # modified instruction
+            instruction_ctx, input_ctx, output_ctx = item_mapping(item, instruction, input, output, category, mapping)
+
+            new_item = dict(
+                instruction=instruction_ctx,
+                input=input_ctx,
+                output=output_ctx,
+                category=item[category] if category in item else None)
+            print(instruction_ctx, '\n', input_ctx, "Answer : ", output_ctx, '\n')
+            item = new_item
+            list_data_dict.append(item)
+    return list_data_dict
+
+
+def item_mapping(item, instruction, input, output, category, mapping):
+    """mapping the input output and instructions accroding to mapping # instruction: the instruction of the question:
+    "fix_instruction": or "item[instruction] + ' ' + mapping[item[category]]，or item[instruction]"
+    # input:  mapping[subinput] + ' ' + the input of the questions or item[input]
+    # output: item[output] or mapping[item[output]]
+    """
+    # for instruction use category as key to map padding of the instruction
+    if instruction in item:
+        if (category in item) and (item[category] in mapping):
+            # add category related instruction
+            instruction_ctx = item[instruction] + ' ' + mapping[item[category]]
+        else:
+            instruction_ctx = item[instruction]
+    else:
+        instruction_ctx = None
+
+    # add fix instruction if provided
+    if 'fix_instruction' in mapping:
+        if instruction_ctx is None:
+            instruction_ctx = mapping['fix_instruction']
+        else:
+            instruction_ctx = instruction_ctx + ' ' + mapping['fix_instruction']
+
+    # cascade multiple choices, mapping subinput is required
+    if isinstance(input, list):
+        input_ctx = ''
+        for subinput in input:
+            answer_with_choice = mapping[subinput] + ' ' + item[subinput] + '\n' if subinput in item else None
+            input_ctx += answer_with_choice
+    else:
+        input_ctx = item[input] if input in item else None
+
+    # output in mapping
+    if item[output] in mapping:
+        output_ctx = mapping[item[output]] if output in item else None
+    else:
+        output_ctx = item[output] if output in item else None
+
+    return instruction_ctx, input_ctx, output_ctx
+
+
+def load_jsonl_question_record(file_path,
+                               question_dict='question',
+                               instruction='instruction',
+                               input='input',
+                               output='output',
+                               category='category',
+                               is_gzip=False):
+    return NotImplementedError
